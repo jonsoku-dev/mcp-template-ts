@@ -166,7 +166,7 @@ program
       const args = [
         "npx",
         "@modelcontextprotocol/inspector",
-        "dist/src/server.js",
+        "dist/src/bin/cli.js",
       ];
       if (options.debug) {
         args.push("--debug");
