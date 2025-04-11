@@ -24,7 +24,7 @@ const program = new Command()
 // 로깅 미들웨어 예제
 const loggingMiddleware: MCPMiddleware = async (
   request: MCPRequest,
-  next: () => Promise<any>
+  next: () => Promise<any>,
 ) => {
   const startTime = Date.now();
   logger.info(`[Middleware] 요청 시작: ${request.toolName}`);
@@ -88,7 +88,7 @@ program
       // package.json 생성
       await fs.writeFile(
         path.join(targetDir, "package.json"),
-        JSON.stringify(packageJson, null, 2)
+        JSON.stringify(packageJson, null, 2),
       );
 
       // tsconfig.json 복사
