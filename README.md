@@ -5,14 +5,23 @@ Model Context Protocol(MCP) 서버를 위한 보일러플레이트 프로젝트�
 ## 빠른 시작
 
 ```bash
-# npx로 직접 실행
-npx @jonsoku2/mcp-template-ts start
+# npx로 직접 실행 (최신 버전)
+npx @jonsoku2/mcp-template-ts@latest start
+
+# 특정 버전으로 실행
+npx @jonsoku2/mcp-template-ts@1.0.8 start
 
 # 디버그 모드로 실행
-npx @jonsoku2/mcp-template-ts start -d
+npx @jonsoku2/mcp-template-ts@latest start -d
 
-# 전역 설치
-npm install -g @jonsoku2/mcp-template-ts
+# 포트 지정하여 실행
+npx @jonsoku2/mcp-template-ts@latest start --port 4000
+
+# 여러 옵션 조합
+npx @jonsoku2/mcp-template-ts@latest start -d --port 4000 --no-middleware
+
+# 전역 설치 (최신 버전)
+npm install -g @jonsoku2/mcp-template-ts@latest
 
 # 전역 설치 후 실행
 mcp-template start
@@ -23,8 +32,14 @@ mcp-template start
 ### npx로 프로젝트 생성
 
 ```bash
-# 새 프로젝트 생성
-npx @jonsoku2/mcp-template-ts init my-mcp-server
+# 새 프로젝트 생성 (최신 버전)
+npx @jonsoku2/mcp-template-ts@latest init my-mcp-server
+
+# 특정 버전으로 프로젝트 생성
+npx @jonsoku2/mcp-template-ts@1.0.8 init my-mcp-server
+
+# 옵션과 함께 프로젝트 생성
+npx @jonsoku2/mcp-template-ts@latest init my-mcp-server --template typescript --port 4000
 
 # 생성된 프로젝트로 이동
 cd my-mcp-server
@@ -166,8 +181,8 @@ MacOS와 Windows에서 빌드된 서버를 Claude Desktop과 연동하는 방법
 {
   "mcpServers": {
     "example-mcp": {
-      "command": "node",
-      "args": ["/절대경로/dist/bin/cli.js", "start"],
+      "command": "npx",
+      "args": ["@jonsoku2/mcp-template-ts@latest", "start", "--port", "4000", "--no-middleware"],
       "options": {
         "cwd": "/프로젝트/루트/경로"
       }
@@ -183,8 +198,8 @@ MacOS와 Windows에서 빌드된 서버를 Claude Desktop과 연동하는 방법
 {
   "mcpServers": {
     "example-mcp": {
-      "command": "node",
-      "args": ["C:\\절대경로\\dist\\bin\\cli.js", "start"],
+      "command": "npx",
+      "args": ["@jonsoku2/mcp-template-ts@latest", "start", "--port", "4000", "--no-middleware"],
       "options": {
         "cwd": "C:\\프로젝트\\루트\\경로"
       }
