@@ -13,6 +13,8 @@ import { logger } from "../utils/logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+logger.info(`[CLI] __filename: ${__filename}`);
+logger.info(`[CLI] __dirname: ${__dirname}`);
 
 const program = new Command()
   .name("mcp-template-ts")
