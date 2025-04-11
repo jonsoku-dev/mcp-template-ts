@@ -41,7 +41,7 @@
     "inspect": "ts-node --esm src/bin/cli.ts inspect",
     "lint": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "prepare": "husky install",
     "cli": "ts-node --esm src/bin/cli.ts",
     "cli:debug": "ts-node --esm src/bin/cli.ts --debug",

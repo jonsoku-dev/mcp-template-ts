@@ -1,9 +1,10 @@
 export default {
-  preset: "ts-jest",
+  preset: "ts-jest/presets/default-esm",
   testEnvironment: "node",
   extensionsToTreatAsEsm: [".ts"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^(\\.{1,2}/.*)\\.ts$": "$1"
   },
   transform: {
     "^.+\\.tsx?$": ["ts-jest", {
@@ -18,5 +19,8 @@ export default {
   ],
   roots: ["<rootDir>/src/"],
   testTimeout: 10000,
-  verbose: true
+  verbose: true,
+  transformIgnorePatterns: [
+    "node_modules/(?!@modelcontextprotocol)"
+  ]
 }; 
