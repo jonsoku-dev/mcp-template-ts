@@ -5,17 +5,13 @@
  * Provides example functionality for MCP server implementation
  */
 
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import { toolHandlers, tools } from "./tools/index.js";
-import { MCPInitializeOptions, MCPMiddleware } from "./types/index.js";
+import { MCPInitializeOptions } from "./types/index.js";
 import { logger } from "./utils/logger.js";
+import { MCPServerUtils } from "./utils/mcp-utils.js";
 
 /**
  * 현재 파일의 경로를 가져옵니다.
@@ -48,28 +44,17 @@ interface ServerOptions {
  * MCP 서버의 모든 기능을 관리하는 메인 클래스입니다.
  */
 export class MCPServer {
-  private server: Server;
   private transport: StdioServerTransport | null = null;
   private isDebugMode: boolean;
   private config: ServerConfig;
-  private isInitialized: boolean = false;
-  private middlewares: MCPMiddleware[] = [];
+  private mcpServer: MCPServerUtils;
 
   constructor(options: ServerOptions = {}) {
     this.isDebugMode = options.debug || false;
     this.config = this.loadConfig(options.config);
+    this.mcpServer = new MCPServerUtils("example-mcp", "1.0.0");
 
-    this.server = new Server(
-      {
-        name: "example-mcp",
-        version: "1.0.0",
-      },
-      {
-        capabilities: {
-          tools: {},
-        },
-      },
-    );
+    this.setupRequestHandlers();
   }
 
   /**
@@ -127,7 +112,8 @@ export class MCPServer {
    * 서버 에러와 프로세스 종료를 처리합니다.
    */
   private setupErrorHandling(): void {
-    this.server.onerror = (error) => {
+    const server = this.mcpServer.getServer();
+    server.onerror = (error) => {
       logger.error("[MCP Error]", error);
     };
 
@@ -153,58 +139,33 @@ export class MCPServer {
    */
   private setupRequestHandlers(): void {
     // 도구 목록 요청 처리
-    this.server.setRequestHandler(
-      ListToolsRequestSchema,
-      this.applyMiddleware(async () => {
-        logger.info("[Tools] List available tools");
-        return {
-          tools,
-        };
-      }),
-    );
+    this.mcpServer.setToolsListHandler(async () => {
+      logger.info("[Tools] List available tools");
+      return {
+        tools,
+      };
+    });
 
     // 도구 호출 요청 처리
-    this.server.setRequestHandler(
-      CallToolRequestSchema,
-      this.applyMiddleware(async (request, extra) => {
-        try {
-          const toolName = request.params.name;
-          const handler = toolHandlers[toolName];
+    this.mcpServer.setToolCallHandler(async (request) => {
+      try {
+        const toolName = request.params.name;
+        const handler = toolHandlers[toolName];
 
-          if (!handler) {
-            throw new Error(`Unknown tool: ${toolName}`);
-          }
-
-          logger.info(`[Tools] Executing tool: ${toolName}`);
-          const result = await handler(request.params.arguments);
-          logger.info(`[Tools] Tool execution completed: ${toolName}`);
-
-          return result;
-        } catch (error) {
-          logger.error(`[Tools] Tool execution failed:`, error);
-          throw error;
+        if (!handler) {
+          throw new Error(`Unknown tool: ${toolName}`);
         }
-      }),
-    );
-  }
 
-  /**
-   * 미들웨어를 적용하는 함수
-   */
-  private applyMiddleware<T extends Function>(handler: T): T {
-    return (async (request: any, ...args: any[]) => {
-      let index = 0;
+        logger.info(`[Tools] Executing tool: ${toolName}`);
+        const result = await handler(request.params.arguments);
+        logger.info(`[Tools] Tool execution completed: ${toolName}`);
 
-      const next = async (): Promise<any> => {
-        if (index < this.middlewares.length) {
-          const middleware = this.middlewares[index++];
-          return await middleware(request, next);
-        }
-        return handler(request, ...args);
-      };
-
-      return next();
-    }) as unknown as T;
+        return result;
+      } catch (error) {
+        logger.error(`[Tools] Tool execution failed:`, error);
+        throw error;
+      }
+    });
   }
 
   /**
@@ -214,7 +175,7 @@ export class MCPServer {
   public async initialize(
     initOptions: MCPInitializeOptions = {},
   ): Promise<void> {
-    if (this.isInitialized) {
+    if (this.mcpServer.isServerInitialized()) {
       logger.warn("[Initialize] 서버가 이미 초기화되어 있습니다");
       return;
     }
@@ -222,19 +183,12 @@ export class MCPServer {
     try {
       logger.info("[Initialize] 서버 초기화 중...");
 
-      // 기본 에러 핸들링과 요청 핸들러 설정
+      // 기본 에러 핸들링 설정
       this.setupErrorHandling();
-      this.setupRequestHandlers();
 
-      // 미들웨어 등록
-      if (initOptions.middleware) {
-        this.middlewares.push(...initOptions.middleware);
-        logger.info(
-          `[Initialize] ${initOptions.middleware.length}개의 미들웨어가 등록되었습니다`,
-        );
-      }
+      // MCP 서버 초기화
+      await this.mcpServer.initialize(initOptions);
 
-      this.isInitialized = true;
       logger.info("[Initialize] 서버 초기화가 완료되었습니다");
     } catch (error) {
       logger.error(`[Initialize] 서버 초기화 실패: ${error}`);
@@ -248,7 +202,7 @@ export class MCPServer {
    */
   public async start(): Promise<void> {
     try {
-      if (!this.isInitialized) {
+      if (!this.mcpServer.isServerInitialized()) {
         await this.initialize();
       }
 
@@ -259,7 +213,7 @@ export class MCPServer {
       }
 
       this.transport = new StdioServerTransport();
-      await this.server.connect(this.transport);
+      await this.mcpServer.getServer().connect(this.transport);
       logger.info(
         `[Setup] 서버가 시작되었습니다 (${this.config.host}:${this.config.port})`,
       );
@@ -276,7 +230,7 @@ export class MCPServer {
   public async shutdown(): Promise<void> {
     try {
       if (this.transport) {
-        await this.server.close();
+        await this.mcpServer.getServer().close();
         this.transport = null;
         logger.info("[Shutdown] 서버가 종료되었습니다");
       }

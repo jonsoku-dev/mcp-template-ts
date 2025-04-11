@@ -2,6 +2,18 @@
 
 Model Context Protocol(MCP) 서버를 위한 TypeScript 템플릿 프로젝트입니다.
 
+## 목차
+
+- [빠른 시작](#빠른-시작)
+- [프로젝트로 설치](#프로젝트로-설치)
+- [프로젝트 구조](#프로젝트-구조)
+- [주요 기능](#주요-기능)
+- [CLI 옵션](#cli-옵션)
+- [환경 변수](#환경-변수)
+- [시스템 구조](#시스템-구조)
+- [배포 가이드](docs/DEPLOYMENT.md)
+- [라이센스](#라이센스)
+
 ## 빠른 시작
 
 ```bash
@@ -140,6 +152,14 @@ sequenceDiagram
     Server-->>CLI: Server Started
     deactivate Server
 ```
+
+## 배포
+
+상세한 배포 방법은 [배포 가이드](docs/DEPLOYMENT.md)를 참고하세요.
+
+지원하는 배포 방식:
+- Docker 기반 배포 (Kubernetes, ECS, SSH, Heroku)
+- Vercel 배포
 
 ## 라이센스
 

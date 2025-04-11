@@ -1,0 +1,78 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '배포 환경 선택'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - production
+          - preview
+          - development
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  DEPLOY_ENV: ${{ inputs.environment || 'preview' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=${{ env.DEPLOY_ENV }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      # PR인 경우 Preview 배포
+      - name: Deploy Preview to Vercel
+        if: github.event_name == 'pull_request'
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
+          
+          # PR 코멘트에 배포 URL 추가
+          gh pr comment ${{ github.event.pull_request.number }} --body "🚀 Preview: $DEPLOYMENT_URL"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # main 브랜치 또는 수동 트리거인 경우 Production 배포
+      - name: Deploy Production to Vercel
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || env.DEPLOY_ENV == 'production')
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "🎉 Production deployment successful: $DEPLOYMENT_URL"
+
+      # 배포 결과 알림 (선택사항)
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          text: |
+            ${{ env.DEPLOY_ENV }} 환경 배포 ${{ job.status == 'success' && '성공 ✅' || '실패 ❌' }}
+            ${{ env.DEPLOYMENT_URL && format('배포 URL: {0}', env.DEPLOYMENT_URL) || '' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 
