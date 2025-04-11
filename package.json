@@ -1,6 +1,6 @@
 {
   "name": "@jonsoku2/mcp-template-ts",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MCP(Model Context Protocol) TypeScript 템플릿 - AI 모델과 상호작용하기 위한 서버 템플릿",
   "author": "jonsoku <jonsoku.dev@gmail.com>",
   "license": "MIT",
