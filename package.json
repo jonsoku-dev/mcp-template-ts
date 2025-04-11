@@ -8,10 +8,6 @@
     "mcp-template-ts": "./dist/bin/cli.js"
   },
   "main": "./dist/bin/cli.js",
-  "exports": {
-    ".": "./dist/server.js",
-    "./cli": "./dist/bin/cli.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jonsoku-dev/mcp-template-ts.git"
