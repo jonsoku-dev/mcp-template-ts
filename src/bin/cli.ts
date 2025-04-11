@@ -22,7 +22,7 @@ const program = new Command()
 // 로깅 미들웨어 예제
 const loggingMiddleware: MCPMiddleware = async (
   request: MCPRequest,
-  next: () => Promise<any>
+  next: () => Promise<any>,
 ) => {
   const startTime = Date.now();
   logger.info(`[Middleware] 요청 시작: ${request.toolName}`);
