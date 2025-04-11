@@ -16,6 +16,11 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# package-lock.json 백업
+if [ -f "package-lock.json" ]; then
+  cp package-lock.json package-lock.json.backup
+fi
+
 # 현재 버전 가져오기
 current_version=$(node -p "require('./package.json').version")
 
@@ -68,5 +73,25 @@ git push origin "v$new_version"
 
 # npm 배포
 npm publish
+
+# 배포 후 정리
+echo "Cleaning up after release..."
+
+# package-lock.json 복원
+if [ -f "package-lock.json.backup" ]; then
+  mv package-lock.json.backup package-lock.json
+fi
+
+# OS 생성 파일 정리
+find . -type f -name ".DS_Store" -delete
+find . -type f -name ".DS_Store?" -delete
+find . -type f -name "._*" -delete
+find . -type f -name ".Spotlight-V100" -delete
+find . -type f -name ".Trashes" -delete
+find . -type f -name "ehthumbs.db" -delete
+find . -type f -name "Thumbs.db" -delete
+
+# git clean으로 불필요한 파일 정리
+git clean -fd
 
 echo "🎉 Successfully released version $new_version!" 
