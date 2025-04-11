@@ -8,11 +8,15 @@ export default {
   transform: {
     "^.+\\.tsx?$": ["ts-jest", {
       useESM: true,
+      tsconfig: "tsconfig.json"
     }],
   },
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   testMatch: [
     "<rootDir>/src/**/*.test.ts",
     "<rootDir>/src/**/*.spec.ts"
   ],
   roots: ["<rootDir>/src/"],
+  testTimeout: 10000,
+  verbose: true
 }; 
