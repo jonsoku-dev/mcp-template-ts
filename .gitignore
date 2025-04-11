@@ -5,3 +5,5 @@ build/
 lightpanda
 .history/
 dist/
+
+.DS_Store
