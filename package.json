@@ -1,10 +1,17 @@
 {
   "name": "@jonsoku2/mcp-template-ts",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "MCP(Model Context Protocol) TypeScript 템플릿 - AI 모델과 상호작용하기 위한 서버 템플릿",
   "author": "jonsoku <jonsoku.dev@gmail.com>",
   "license": "MIT",
-  "bin": "./dist/bin/cli.js",
+  "bin": {
+    "mcp-template-ts": "./dist/bin/cli.js"
+  },
+  "main": "./dist/bin/cli.js",
+  "exports": {
+    ".": "./dist/server.js",
+    "./cli": "./dist/bin/cli.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jonsoku-dev/mcp-template-ts.git"
@@ -21,11 +28,10 @@
     "boilerplate",
     "model-context-protocol"
   ],
-  "main": "dist/index.js",
   "type": "module",
   "engines": {
-    "node": ">=22.13.1",
-    "npm": ">=10.0.0"
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   },
   "scripts": {
     "build": "tsc",
