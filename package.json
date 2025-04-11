@@ -26,8 +26,8 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
+    "node": ">=22.13.1",
+    "npm": ">=10.9.2"
   },
   "scripts": {
     "build": "tsc",
@@ -48,8 +48,8 @@
     "lint:fix": "npm run lint -- --fix",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "tsc --noEmit",
-    "inspector": "npm run build && npx @modelcontextprotocol/inspector node dist/server.js --debug",
-    "inspector:npx": "npm run build && npx @modelcontextprotocol/inspector npx @jonsoku2/mcp-template-ts@latest --debug"
+    "inspector": "npm run build && npx @modelcontextprotocol/inspector node dist/server.js start --debug",
+    "inspector:npx": "npm run build && npx @modelcontextprotocol/inspector npx @jonsoku2/mcp-template-ts@latest start --debug"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.6.0",

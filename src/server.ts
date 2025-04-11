@@ -11,11 +11,11 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { tools, toolHandlers } from "./tools/index.js";
-import { logger } from "./utils/logger.js";
-import { fileURLToPath } from "url";
 import path from "path";
+import { fileURLToPath } from "url";
+import { toolHandlers, tools } from "./tools/index.js";
 import { MCPInitializeOptions, MCPMiddleware } from "./types/index.js";
+import { logger } from "./utils/logger.js";
 
 /**
  * 현재 파일의 경로를 가져옵니다.
@@ -152,54 +152,47 @@ export class MCPServer {
    * 도구 목록 조회와 도구 호출 요청을 처리합니다.
    */
   private setupRequestHandlers(): void {
-    // 사용 가능한 도구 목록 요청 처리
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      logger.info("[Tools] List available tools");
-      return {
-        tools,
-      };
-    });
+    // 도구 목록 요청 처리
+    this.server.setRequestHandler(
+      ListToolsRequestSchema,
+      this.applyMiddleware(async () => {
+        logger.info("[Tools] List available tools");
+        return {
+          tools,
+        };
+      }),
+    );
+
     // 도구 호출 요청 처리
     this.server.setRequestHandler(
       CallToolRequestSchema,
-      async (request, extra) => {
-        const toolName = request.params.name;
-        const handler = toolHandlers[toolName];
-
-        if (!handler) {
-          throw new Error(`Unknown tool: ${toolName}`);
-        }
-
-        // 요청 타임아웃 처리
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => {
-            reject(
-              new Error(
-                `Tool execution timed out after ${this.config.timeout}ms`,
-              ),
-            );
-          }, this.config.timeout);
-        });
-
+      this.applyMiddleware(async (request, extra) => {
         try {
-          const result = await Promise.race([
-            handler(request.params.arguments),
-            timeoutPromise,
-          ]);
+          const toolName = request.params.name;
+          const handler = toolHandlers[toolName];
+
+          if (!handler) {
+            throw new Error(`Unknown tool: ${toolName}`);
+          }
+
+          logger.info(`[Tools] Executing tool: ${toolName}`);
+          const result = await handler(request.params.arguments);
+          logger.info(`[Tools] Tool execution completed: ${toolName}`);
+
           return result;
         } catch (error) {
-          logger.error(`[Tools] 도구 실행 실패 (${toolName}):`, error);
+          logger.error(`[Tools] Tool execution failed:`, error);
           throw error;
         }
-      },
+      }),
     );
   }
 
   /**
    * 미들웨어를 적용하는 함수
    */
-  private applyMiddleware(handler: Function): Function {
-    return async (request: any, ...args: any[]) => {
+  private applyMiddleware<T extends Function>(handler: T): T {
+    return (async (request: any, ...args: any[]) => {
       let index = 0;
 
       const next = async (): Promise<any> => {
@@ -211,7 +204,7 @@ export class MCPServer {
       };
 
       return next();
-    };
+    }) as unknown as T;
   }
 
   /**
@@ -232,48 +225,6 @@ export class MCPServer {
       // 기본 에러 핸들링과 요청 핸들러 설정
       this.setupErrorHandling();
       this.setupRequestHandlers();
-
-      // 커스텀 핸들러 등록
-      if (initOptions.customHandlers) {
-        Object.entries(initOptions.customHandlers).forEach(
-          ([name, handler]) => {
-            logger.info(`[Initialize] 커스텀 핸들러 등록: ${name}`);
-            const wrappedHandler = this.applyMiddleware(handler);
-            const customTool = {
-              name,
-              description: `Custom handler: ${name}`,
-              inputSchema: {
-                type: "object",
-                properties: {
-                  input: {
-                    type: "string",
-                    description: "Input data for custom handler",
-                  },
-                  debug: {
-                    type: "boolean",
-                    description: "Whether to enable debug mode",
-                  },
-                },
-                required: ["input"],
-              },
-            };
-            tools.push(customTool);
-            toolHandlers[name] = async (args: any) => {
-              const result = await wrappedHandler(args);
-              return {
-                content: Array.isArray(result.content)
-                  ? result.content
-                  : [
-                      {
-                        type: "text",
-                        text: JSON.stringify(result),
-                      },
-                    ],
-              };
-            };
-          },
-        );
-      }
 
       // 미들웨어 등록
       if (initOptions.middleware) {

@@ -1,19 +1,21 @@
 import winston from "winston";
 
 export const logger = winston.createLogger({
-  level: "info",
+  level: process.env.LOG_LEVEL || "info",
   format: winston.format.combine(
     winston.format.timestamp(),
-    winston.format.json(),
+    winston.format.printf(({ timestamp, level, message, ...rest }) => {
+      const meta = Object.keys(rest).length ? JSON.stringify(rest) : "";
+      return `${timestamp} ${level}: ${message} ${meta}`;
+    }),
   ),
   transports: [
     new winston.transports.Console({
+      stderrLevels: ["error", "warn", "info", "debug"],
       format: winston.format.combine(
         winston.format.colorize(),
         winston.format.simple(),
       ),
     }),
-    new winston.transports.File({ filename: "error.log", level: "error" }),
-    new winston.transports.File({ filename: "combined.log" }),
   ],
 });
