@@ -5,7 +5,8 @@
   "author": "jonsoku <jonsoku.dev@gmail.com>",
   "license": "MIT",
   "bin": {
-    "mcp-template": "./dist/bin/cli.js"
+    "@jonsoku2/mcp-template-ts": "./dist/bin/cli.js",
+    "mcp-template-ts": "./dist/bin/cli.js"
   },
   "repository": {
     "type": "git",

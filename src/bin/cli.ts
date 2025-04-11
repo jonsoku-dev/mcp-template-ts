@@ -17,9 +17,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const program = new Command()
-  .name("mcp-template")
+  .name("@jonsoku2/mcp-template-ts")
   .description("MCP(Model Context Protocol) TypeScript 템플릿 CLI")
-  .version("1.0.0");
+  .version("1.0.2");
 
 // 로깅 미들웨어 예제
 const loggingMiddleware: MCPMiddleware = async (
