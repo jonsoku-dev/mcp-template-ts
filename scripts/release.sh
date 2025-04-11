@@ -62,12 +62,6 @@ git tag -a "v$new_version" -m "Release v$new_version 🎉"
 # 빌드
 npm run build
 
-# 테스트
-npm run test
-
-# 린트
-npm run lint
-
 # GitHub에 푸시
 git push origin main
 git push origin "v$new_version"

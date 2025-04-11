@@ -10,4 +10,9 @@ export default {
       useESM: true,
     }],
   },
+  testMatch: [
+    "<rootDir>/src/**/*.test.ts",
+    "<rootDir>/src/**/*.spec.ts"
+  ],
+  roots: ["<rootDir>/src/"],
 }; 
