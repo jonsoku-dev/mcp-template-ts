@@ -45,7 +45,7 @@ export interface ExampleServiceResult {
  * MCP 도구의 컨텐츠 타입
  */
 export interface MCPContent {
-  type: 'text' | 'json' | 'binary';
+  type: "text" | "json" | "binary";
   text?: string;
   data?: any;
   mimeType?: string;
@@ -63,13 +63,15 @@ export interface MCPToolResponse {
  */
 export type MCPMiddleware = (
   request: MCPRequest,
-  next: () => Promise<any>
+  next: () => Promise<any>,
 ) => Promise<any>;
 
 /**
  * MCP 커스텀 핸들러 타입
  */
-export type MCPCustomHandler = (request: MCPRequest) => Promise<MCPToolResponse>;
+export type MCPCustomHandler = (
+  request: MCPRequest,
+) => Promise<MCPToolResponse>;
 
 /**
  * MCP 서버 초기화 옵션
@@ -79,7 +81,7 @@ export interface MCPInitializeOptions {
    * 커스텀 요청 핸들러
    */
   customHandlers?: Record<string, MCPCustomHandler>;
-  
+
   /**
    * 미들웨어 함수 배열
    */

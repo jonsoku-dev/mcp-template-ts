@@ -68,7 +68,7 @@ export class MCPServer {
         capabilities: {
           tools: {},
         },
-      }
+      },
     );
   }
 
@@ -175,8 +175,8 @@ export class MCPServer {
           setTimeout(() => {
             reject(
               new Error(
-                `Tool execution timed out after ${this.config.timeout}ms`
-              )
+                `Tool execution timed out after ${this.config.timeout}ms`,
+              ),
             );
           }, this.config.timeout);
         });
@@ -191,7 +191,7 @@ export class MCPServer {
           logger.error(`[Tools] 도구 실행 실패 (${toolName}):`, error);
           throw error;
         }
-      }
+      },
     );
   }
 
@@ -201,7 +201,7 @@ export class MCPServer {
   private applyMiddleware(handler: Function): Function {
     return async (request: any, ...args: any[]) => {
       let index = 0;
-      
+
       const next = async (): Promise<any> => {
         if (index < this.middlewares.length) {
           const middleware = this.middlewares[index++];
@@ -218,7 +218,9 @@ export class MCPServer {
    * 서버를 초기화합니다.
    * 에러 핸들링과 요청 핸들러를 설정합니다.
    */
-  public async initialize(initOptions: MCPInitializeOptions = {}): Promise<void> {
+  public async initialize(
+    initOptions: MCPInitializeOptions = {},
+  ): Promise<void> {
     if (this.isInitialized) {
       logger.warn("[Initialize] 서버가 이미 초기화되어 있습니다");
       return;
@@ -233,17 +235,21 @@ export class MCPServer {
 
       // 커스텀 핸들러 등록
       if (initOptions.customHandlers) {
-        Object.entries(initOptions.customHandlers).forEach(([name, handler]) => {
-          logger.info(`[Initialize] 커스텀 핸들러 등록: ${name}`);
-          const wrappedHandler = this.applyMiddleware(handler);
-          this.server.setRequestHandler(name as any, wrappedHandler as any);
-        });
+        Object.entries(initOptions.customHandlers).forEach(
+          ([name, handler]) => {
+            logger.info(`[Initialize] 커스텀 핸들러 등록: ${name}`);
+            const wrappedHandler = this.applyMiddleware(handler);
+            this.server.setRequestHandler(name as any, wrappedHandler as any);
+          },
+        );
       }
 
       // 미들웨어 등록
       if (initOptions.middleware) {
         this.middlewares.push(...initOptions.middleware);
-        logger.info(`[Initialize] ${initOptions.middleware.length}개의 미들웨어가 등록되었습니다`);
+        logger.info(
+          `[Initialize] ${initOptions.middleware.length}개의 미들웨어가 등록되었습니다`,
+        );
       }
 
       this.isInitialized = true;
@@ -273,7 +279,7 @@ export class MCPServer {
       this.transport = new StdioServerTransport();
       await this.server.connect(this.transport);
       logger.info(
-        `[Setup] 서버가 시작되었습니다 (${this.config.host}:${this.config.port})`
+        `[Setup] 서버가 시작되었습니다 (${this.config.host}:${this.config.port})`,
       );
     } catch (error) {
       logger.error(`[Error] 서버 시작 실패: ${error}`);

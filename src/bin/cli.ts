@@ -24,7 +24,7 @@ const program = new Command()
 // 로깅 미들웨어 예제
 const loggingMiddleware: MCPMiddleware = async (
   request: MCPRequest,
-  next: () => Promise<any>
+  next: () => Promise<any>,
 ) => {
   const startTime = Date.now();
   logger.info(`[Middleware] 요청 시작: ${request.toolName}`);
@@ -48,10 +48,10 @@ program
   .action(async (projectName, options) => {
     try {
       const targetDir = path.resolve(process.cwd(), projectName);
-      
+
       // 프로젝트 디렉토리 생성
       await fs.mkdir(targetDir, { recursive: true });
-      
+
       // package.json 템플릿
       const packageJson = {
         name: projectName,
@@ -59,28 +59,28 @@ program
         description: "MCP Server Project",
         type: "module",
         scripts: {
-          "build": "tsc",
-          "start": "node dist/bin/cli.js start",
-          "dev": "ts-node --esm src/bin/cli.ts start",
-          "debug": "ts-node --esm src/bin/cli.ts start -d",
-          "inspect": "ts-node --esm src/bin/cli.ts inspect"
+          build: "tsc",
+          start: "node dist/bin/cli.js start",
+          dev: "ts-node --esm src/bin/cli.ts start",
+          debug: "ts-node --esm src/bin/cli.ts start -d",
+          inspect: "ts-node --esm src/bin/cli.ts inspect",
         },
         dependencies: {
           "@modelcontextprotocol/sdk": "^0.1.0",
-          "commander": "^11.1.0",
-          "winston": "^3.11.0"
+          commander: "^11.1.0",
+          winston: "^3.11.0",
         },
         devDependencies: {
           "@types/node": "^20.11.0",
           "ts-node": "^10.9.2",
-          "typescript": "^5.3.3"
-        }
+          typescript: "^5.3.3",
+        },
       };
 
       // 소스 디렉토리 생성
       const srcDir = path.join(targetDir, "src");
       await fs.mkdir(srcDir, { recursive: true });
-      
+
       // 템플릿 파일 복사
       const templateDir = path.resolve(__dirname, "../../src");
       await copyDir(templateDir, srcDir);
@@ -88,7 +88,7 @@ program
       // package.json 생성
       await fs.writeFile(
         path.join(targetDir, "package.json"),
-        JSON.stringify(packageJson, null, 2)
+        JSON.stringify(packageJson, null, 2),
       );
 
       // tsconfig.json 복사

@@ -48,7 +48,7 @@ export async function processData(args: any) {
     const debug = args?.debug === true || process.argv.includes("--debug");
 
     logger.info(
-      `[ProcessData] Processing data with args: ${JSON.stringify(args)}`
+      `[ProcessData] Processing data with args: ${JSON.stringify(args)}`,
     );
 
     // 서비스 인스턴스 생성 - 검증된 파라미터 전달

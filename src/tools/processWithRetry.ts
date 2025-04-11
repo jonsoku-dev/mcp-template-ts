@@ -50,10 +50,11 @@ export async function processWithRetry(args: any) {
 
     // 선택적 파라미터는 기본값과 함께 안전하게 처리
     const debug = args?.debug === true || process.argv.includes("--debug");
-    const retryCount = typeof args?.retryCount === "number" ? args.retryCount : 3;
+    const retryCount =
+      typeof args?.retryCount === "number" ? args.retryCount : 3;
 
     logger.info(
-      `[ProcessWithRetry] Processing data with args: ${JSON.stringify(args)}`
+      `[ProcessWithRetry] Processing data with args: ${JSON.stringify(args)}`,
     );
 
     // 서비스 인스턴스 생성 - 검증된 파라미터 전달
@@ -86,4 +87,4 @@ export async function processWithRetry(args: any) {
       ],
     };
   }
-} 
+}
