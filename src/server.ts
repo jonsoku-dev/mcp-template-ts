@@ -239,7 +239,38 @@ export class MCPServer {
           ([name, handler]) => {
             logger.info(`[Initialize] 커스텀 핸들러 등록: ${name}`);
             const wrappedHandler = this.applyMiddleware(handler);
-            this.server.setRequestHandler(name as any, wrappedHandler as any);
+            const customTool = {
+              name,
+              description: `Custom handler: ${name}`,
+              inputSchema: {
+                type: "object",
+                properties: {
+                  input: {
+                    type: "string",
+                    description: "Input data for custom handler",
+                  },
+                  debug: {
+                    type: "boolean",
+                    description: "Whether to enable debug mode",
+                  },
+                },
+                required: ["input"],
+              },
+            };
+            tools.push(customTool);
+            toolHandlers[name] = async (args: any) => {
+              const result = await wrappedHandler(args);
+              return {
+                content: Array.isArray(result.content)
+                  ? result.content
+                  : [
+                      {
+                        type: "text",
+                        text: JSON.stringify(result),
+                      },
+                    ],
+              };
+            };
           },
         );
       }

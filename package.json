@@ -47,7 +47,9 @@
     "postrelease": "echo '배포가 완료되었습니다! 🎉'",
     "lint:fix": "npm run lint -- --fix",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "inspector": "npm run build && npx @modelcontextprotocol/inspector node dist/server.js --debug",
+    "inspector:npx": "npm run build && npx @modelcontextprotocol/inspector npx @jonsoku2/mcp-template-ts@latest --debug"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.6.0",
